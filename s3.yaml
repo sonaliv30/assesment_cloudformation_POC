@@ -10,7 +10,7 @@ Resources:
   StaticFilesBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub 'opensupports-static-${AWS::StackName}-${EnvironmentName}'
+      BucketName: !Sub 'opensupports-static-${AWS::StackName}-${EnvironmentName}' #Refers to the name of the CloudFormation stack in which the S3 bucket is being created
       VersioningConfiguration:
         Status: Enabled
       
