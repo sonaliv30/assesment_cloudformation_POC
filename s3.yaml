@@ -6,8 +6,21 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub 'opensupports-static-${AWS::StackName}-${EnvironmentName}'
-      AccessControl: PublicRead
+      
       VersioningConfiguration:
         Status: Enabled
+   StaticFilesBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties: 
+      Bucket: !Ref StaticFilesBucket
+      PolicyDocument:
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: "*"
+            Action: "s3:GetObject"
+            Resource: !Sub 'arn:aws:s3:::${StaticFilesBucket}/*'
+
+
     
 
