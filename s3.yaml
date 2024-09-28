@@ -1,15 +1,21 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: S3 Bucket for storing static files
 
+Parameters:
+  EnvironmentName:
+    Type: String
+    Description: "S3 for Static File Storage"
+
 Resources:
   StaticFilesBucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub 'opensupports-static-${AWS::StackName}-${EnvironmentName}'
-      
       VersioningConfiguration:
         Status: Enabled
-   StaticFilesBucketPolicy:
+      
+
+  StaticFilesBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties: 
       Bucket: !Ref StaticFilesBucket
@@ -21,6 +27,7 @@ Resources:
             Action: "s3:GetObject"
             Resource: !Sub 'arn:aws:s3:::${StaticFilesBucket}/*'
 
-
-    
-
+Outputs:
+  BucketName:
+    Description: Name of the created S3 bucket
+    Value: !Ref StaticFilesBucket
