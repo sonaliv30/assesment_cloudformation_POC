@@ -9,7 +9,5 @@ Resources:
       AccessControl: PublicRead
       VersioningConfiguration:
         Status: Enabled
-      Tags:
-        - Key: Environment
-          Value: !Ref EnvironmentName
+    
 
