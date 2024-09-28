@@ -9,6 +9,10 @@ Parameters:
   KeyName:
     Description: Name of an existing EC2 KeyPair
     Type: AWS::EC2::KeyPair::KeyName
+
+Resources:
+  AppInstance:
+    Type: AWS::EC2::Instance
     Properties: 
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
