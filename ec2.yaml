@@ -12,7 +12,7 @@ Parameters:
     Properties: 
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
-      ImageId: ami-0c55b159cbfafe1f0 # Use the correct AMI for your region
+      ImageId: 
       SecurityGroupIds: 
         - !Ref InstanceSecurityGroup
       SubnetId: !Ref PublicSubnet
