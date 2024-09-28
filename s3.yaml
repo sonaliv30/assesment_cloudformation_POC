@@ -5,7 +5,7 @@ Resources:
   StaticFilesBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub 'opensupports-static-${AWS::StackName}'
+      BucketName: !Sub 'opensupports-static-${AWS::StackName}-${EnvironmentName}'
       AccessControl: PublicRead
       VersioningConfiguration:
         Status: Enabled
