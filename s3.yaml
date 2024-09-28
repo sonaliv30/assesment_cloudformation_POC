@@ -24,8 +24,8 @@ Resources:
           - Sid: PublicReadGetObject
             Effect: Allow
             Principal: "*"
-            Action: "s3:GetObject"
-            Resource: !Sub 'arn:aws:s3:::${StaticFilesBucket}/*'
+            Action: "s3:GetObject" #Restricts the public to only be able to read (GET) the objects, not write or delete
+            Resource: !Sub 'arn:aws:s3:::${StaticFilesBucket}/*' 
 
 Outputs:
   BucketName:
