@@ -44,4 +44,3 @@ Resources:
             Condition:
               StringEquals:
                 AWS:SourceOwner: !Ref AWS::AccountId  
-
