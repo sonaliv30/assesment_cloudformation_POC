@@ -1,1 +1,84 @@
+name: CI/CD Pipeline for OpenSupports
+
+on:
+  push:
+    branches:
+      - feature-1.1  # Trigger on push to feature branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'  # Specify the PHP version
+          extensions: mbstring, mysqli  # Add any other PHP extensions your application requires
+
+      - name: Install dependencies
+        run: |
+          composer install  # Install PHP dependencies using Composer
+
+  deploy-development:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Development
+        env:
+          EC2_IP: ${{ secrets.DEV_EC2_IP }}  # Use the secret for EC2 IP
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}  # Use the secret for SSH key
+        run: |
+          echo "${EC2_SSH_KEY}" > private_key.pem
+          chmod 600 private_key.pem
+          # Deploy PHP files to the development EC2 instance
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./path/to/your/app/* ec2-user@$EC2_IP:/var/www/html/  # Adjust the path
+          # Optionally run any commands to update the database if needed
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ec2-user@$EC2_IP 'php /var/www/html/update_db.php'  # Example DB update script
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: deploy-development
+    if: success()  # Proceed only if the previous job was successful
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Staging
+        env:
+          EC2_IP: ${{ secrets.STAGING_EC2_IP }}  # Use the secret for EC2 IP
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}  # Use the secret for SSH key
+        run: |
+          echo "${EC2_SSH_KEY}" > private_key.pem
+          chmod 600 private_key.pem
+          # Deploy PHP files to the staging EC2 instance
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./path/to/your/app/* ec2-user@$EC2_IP:/var/www/html/  # Adjust the path
+          # Optionally run any commands to update the database if needed
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ec2-user@$EC2_IP 'php /var/www/html/update_db.php'  # Example DB update script
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: success()  # Proceed only if the previous job was successful
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Production
+        env:
+          EC2_IP: ${{ secrets.PROD_EC2_IP }}  # Use the secret for EC2 IP
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}  # Use the secret for SSH key
+        run: |
+          echo "${EC2_SSH_KEY}" > private_key.pem
+          chmod 600 private_key.pem
+          # Deploy PHP files to the production EC2 instance
+          scp -o StrictHostKeyChecking=no -i private_key.pem -r ./path/to/your/app/* ec2-user@$EC2_IP:/var/www/html/  # Adjust the path
+          # Optionally run any commands to update the database if needed
+          ssh -o StrictHostKeyChecking=no -i private_key.pem ec2-user@$EC2_IP 'php /var/www/html/update_db.php'  # Example DB update script
 
