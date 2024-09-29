@@ -1,1 +1,21 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Production Environment for OpenSupports Application
+
+Parameters:
+  DBUsername:
+    Type: String
+    Default: prod_admin
+  DBPassword:
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 41
+
+Resources:
+  # VPC
+  ProdVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport:
 
