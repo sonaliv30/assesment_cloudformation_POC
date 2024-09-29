@@ -15,14 +15,14 @@ Resources:
       Threshold: 70
       ComparisonOperator: GreaterThanThreshold
       AlarmActions:
-        - !Ref AlarmSNS  
+        - !Ref AlarmSNS  # Action when alarm is triggered
       OKActions:
-        - !Ref AlarmSNS  
+        - !Ref AlarmSNS  # Action when alarm goes back to OK state (optional but recommended)
       InsufficientDataActions:
-        - !Ref AlarmSNS  
+        - !Ref AlarmSNS  # Action when alarm has insufficient data (optional)
       Dimensions:
         - Name: InstanceId
-          Value: !Ref AppInstance  
+          Value: !Ref AppInstance  # Reference to the EC2 instance
 
   # SNS Topic to notify via email
   AlarmSNS:
@@ -30,7 +30,7 @@ Resources:
     Properties:
       Subscription:
         - Protocol: email
-          Endpoint: your-email@example.com  
+          Endpoint: your-email@example.com  # Replace with your email address
 
   # SNS Topic Policy (Optional)
   AlarmSNSTopicPolicy:
@@ -46,4 +46,4 @@ Resources:
             Resource: !Ref AlarmSNS
             Condition:
               StringEquals:
-                AWS:SourceOwner: !Ref AWS::AccountId  
+                AWS:SourceOwner: !Ref AWS::AccountId  # Only your account can publish to this SNS topic
