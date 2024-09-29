@@ -85,8 +85,8 @@ Resources:
       SecurityGroupIds:
         - !Ref DevEC2SecurityGroup
       SubnetId: !Ref DevPublicSubnet
-      KeyName: "your-key-pair"  # Replace with your key pair
-      ImageId: ami-xxxxxxxx      # Replace with appropriate AMI ID for your region
+      KeyName: "sona@123"  
+      ImageId: ami-0130c3a072f3832ff      
       Tags:
         - Key: Name
           Value: Dev-EC2Instance
