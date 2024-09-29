@@ -16,7 +16,7 @@ Resources:
     Properties: 
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
-      ImageId: 
+      ImageId: ami-0130c3a072f3832ff
       SecurityGroupIds: 
         - !Ref InstanceSecurityGroup
       SubnetId: !Ref PublicSubnet
