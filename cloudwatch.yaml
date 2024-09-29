@@ -1,3 +1,6 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudWatch Alarm for EC2 CPU utilization and SNS notification setup
+
 Resources:
   # CloudWatch Alarm to monitor CPU utilization
   AppInstanceAlarm:
