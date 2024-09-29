@@ -1,1 +1,125 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Staging Environment for OpenSupports Application
+
+Parameters:
+  DBUsername:
+    Type: String
+    Default: staging_admin
+  DBPassword:
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 41
+
+Resources:
+  # VPC
+  StagingVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: Staging-VPC
+
+  # Public Subnet
+  StagingPublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.1.0/24
+      VpcId: !Ref StagingVPC
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: Staging-PublicSubnet
+
+  # Private Subnet
+  StagingPrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      CidrBlock: 10.0.2.0/24
+      VpcId: !Ref StagingVPC
+      Tags:
+        - Key: Name
+          Value: Staging-PrivateSubnet
+
+  # Internet Gateway
+  StagingInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Staging-IGW
+
+  StagingAttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref StagingVPC
+      InternetGatewayId: !Ref StagingInternetGateway
+
+  # Security Group for EC2
+  StagingEC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP and SSH traffic
+      VpcId: !Ref StagingVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0  # SSH access
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0  # HTTP access
+      Tags:
+        - Key: Name
+          Value: Staging-EC2-SG
+
+  # EC2 Instance
+  StagingEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.medium
+      SecurityGroupIds:
+        - !Ref StagingEC2SecurityGroup
+      SubnetId: !Ref StagingPublicSubnet
+      KeyName: "your-key-pair"
+      ImageId: ami-xxxxxxxx      # Replace with appropriate AMI ID
+      Tags:
+        - Key: Name
+          Value: Staging-EC2Instance
+
+  # RDS MySQL Database
+  StagingMySQLDatabase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 50
+      DBInstanceClass: db.t3.medium
+      Engine: MySQL
+      EngineVersion: "8.0"
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      DBName: StagingDB
+      VPCSecurityGroups:
+        - !Ref StagingRDSSecurityGroup
+      PubliclyAccessible: false
+      MultiAZ: false
+      StorageType: gp2
+
+  # RDS Security Group
+  StagingRDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow MySQL access
+      VpcId: !Ref StagingVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 10.0.0.0/16  # Restrict to VPC
+      Tags:
+        - Key: Name
+          Value: Staging-RDS-SG
 
