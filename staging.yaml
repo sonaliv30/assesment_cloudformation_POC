@@ -85,8 +85,8 @@ Resources:
       SecurityGroupIds:
         - !Ref StagingEC2SecurityGroup
       SubnetId: !Ref StagingPublicSubnet
-      KeyName: "your-key-pair"
-      ImageId: ami-xxxxxxxx      # Replace with appropriate AMI ID
+      KeyName: "sona@123"
+      ImageId: ami-0130c3a072f3832ff      
       Tags:
         - Key: Name
           Value: Staging-EC2Instance
