@@ -17,5 +17,162 @@ Resources:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
-      EnableDnsSupport:
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: ProdVPC
 
+  # Subnets
+  ProdPublicSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref ProdVPC
+      CidrBlock: 10.0.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: ProdPublicSubnet
+
+  ProdPrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref ProdVPC
+      CidrBlock: 10.0.2.0/24
+      Tags:
+        - Key: Name
+          Value: ProdPrivateSubnet
+
+  # Internet Gateway
+  ProdInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: ProdInternetGateway
+
+  ProdVPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref ProdVPC
+      InternetGatewayId: !Ref ProdInternetGateway
+
+  # Route Table for Public Subnet
+  ProdPublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref ProdVPC
+      Tags:
+        - Key: Name
+          Value: ProdPublicRouteTable
+
+  ProdPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: ProdVPCGatewayAttachment
+    Properties:
+      RouteTableId: !Ref ProdPublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref ProdInternetGateway
+
+  ProdPublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref ProdPublicSubnet
+      RouteTableId: !Ref ProdPublicRouteTable
+
+  # Security Groups
+  ProdEC2SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable SSH and HTTP access for EC2 instances
+      VpcId: !Ref ProdVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: ProdEC2SecurityGroup
+
+  ProdRDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable MySQL access for RDS
+      VpcId: !Ref ProdVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 10.0.0.0/16  # Restrict access to VPC CIDR
+      Tags:
+        - Key: Name
+          Value: ProdRDSSecurityGroup
+
+  # EC2 Instance
+  ProdEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.medium
+      ImageId: ami-0130c3a072f3832ff  
+      SubnetId: !Ref ProdPublicSubnet
+      SecurityGroupIds:
+        - !Ref ProdEC2SecurityGroup
+      KeyName: my-key-pair  # Replace with your key pair
+
+  # RDS Instance
+  ProdRDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t3.micro
+      Engine: MySQL
+      EngineVersion: "8.0"
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Ref DBPassword
+      AllocatedStorage: 20
+      VPCSecurityGroups:
+        - !Ref ProdRDSSecurityGroup
+      DBName: opensupports
+      MultiAZ: true
+      PubliclyAccessible: false
+
+  # S3 Bucket for Static Files
+  ProdS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: prod-opensupports-static-files
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - Key: Name
+          Value: ProdS3Bucket
+
+Outputs:
+  VPCId:
+    Description: The VPC Id for the production environment
+    Value: !Ref ProdVPC
+
+  PublicSubnetId:
+    Description: Public Subnet Id for production
+    Value: !Ref ProdPublicSubnet
+
+  PrivateSubnetId:
+    Description: Private Subnet Id for production
+    Value: !Ref ProdPrivateSubnet
+
+  EC2InstanceId:
+    Description: EC2 Instance Id for production environment
+    Value: !Ref ProdEC2Instance
+
+  RDSInstanceEndpoint:
+    Description: RDS Endpoint for production environment
+    Value: !GetAtt ProdRDSInstance.Endpoint.Address
+
+  S3BucketName:
+    Description: S3 Bucket Name for static file storage
+    Value: !Ref ProdS3Bucket
