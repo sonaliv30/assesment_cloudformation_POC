@@ -36,3 +36,4 @@ The `DBUser` and `DBPassword` are defined as parameters in your CloudFormation t
 - **Spot Instances**: Use Spot Instances in non-production environments to reduce EC2 costs.
 - **Auto Scaling**: Configure Auto Scaling Groups to dynamically adjust the number of EC2 instances based on traffic.
 - **Instance Sizing**: Use appropriate instance sizes for development (`t2.micro`) and production (`t3.medium`).
+- **DB selection**: Use free tier  (if it is not neccessary )
