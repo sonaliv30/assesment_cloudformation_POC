@@ -1,1 +1,47 @@
+Resources:
+  # CloudWatch Alarm to monitor CPU utilization
+  AppInstanceAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: CPU utilization alarm for the EC2 instance
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Statistic: Average
+      Period: 300
+      EvaluationPeriods: 2
+      Threshold: 70
+      ComparisonOperator: GreaterThanThreshold
+      AlarmActions:
+        - !Ref AlarmSNS  
+      OKActions:
+        - !Ref AlarmSNS  
+      InsufficientDataActions:
+        - !Ref AlarmSNS  
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref AppInstance  
+
+  # SNS Topic to notify via email
+  AlarmSNS:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Protocol: email
+          Endpoint: your-email@example.com  
+
+  # SNS Topic Policy (Optional)
+  AlarmSNSTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      Topics:
+        - !Ref AlarmSNS
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal: "*"
+            Action: "sns:Publish"
+            Resource: !Ref AlarmSNS
+            Condition:
+              StringEquals:
+                AWS:SourceOwner: !Ref AWS::AccountId  
 
