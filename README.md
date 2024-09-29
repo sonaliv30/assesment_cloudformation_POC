@@ -22,8 +22,18 @@ EC2 Instances: To host the OpenSupports application.
 RDS (MySQL): A database for the application, using separate instances for each environment.
 S3 Bucket: For storing static files like user uploads, logs, and backups.
 
+Best Practices: 
+Security: Implement IAM Roles with least privilege, secure DB credentials using AWS Secrets Manager, and enforce encrypted communication using SSL.
+High Availability: Enable Multi-AZ for production databases and use Auto Scaling Groups for EC2 instances.
+Monitoring: Use CloudWatch for detailed monitoring of EC2, RDS, and application logs.
 
 ##Parameters Section:
 
 The DBUser and DBPassword are defined as parameters in your CloudFormation template. This means they are values that you can provide at the time of stack creation.
 DBPassword has the property NoEcho: true, which ensures that the password will not be visible in the AWS Management Console or in the CloudFormation events logs for security reasons.
+
+Cost Optimization :
+Spot Instances: Use Spot Instances in non-production environments to reduce EC2 costs.
+Auto Scaling: Configure Auto Scaling Groups to dynamically adjust the number of EC2 instances based on traffic.
+Instance Sizing: Use appropriate instance sizes for development (t2.micro) and production (t3.medium).
+
