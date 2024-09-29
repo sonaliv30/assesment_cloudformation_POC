@@ -13,6 +13,16 @@ Before starting, ensure the following prerequisites are met:
 
 4.Key Pair: Ensure you have an SSH key pair set up in AWS for EC2 access.
 
+Architecture:
+The OpenSupports application is deployed across three isolated environments (development, staging, and production). Each environment consists of its own isolated resources:
+
+VPC: A dedicated Virtual Private Cloud for each environment.
+Subnets: Public and private subnets to host EC2 instances and RDS.
+EC2 Instances: To host the OpenSupports application.
+RDS (MySQL): A database for the application, using separate instances for each environment.
+S3 Bucket: For storing static files like user uploads, logs, and backups.
+
+
 ##Parameters Section:
 
 The DBUser and DBPassword are defined as parameters in your CloudFormation template. This means they are values that you can provide at the time of stack creation.
